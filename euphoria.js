@@ -16,7 +16,7 @@ let main = blessed.list({
   top: 'center',
   left: '0',
   content: 'loading',
-  width: '60%',
+  width: '70%',
   height: '100%',
   tags: true,
   border: {
@@ -24,6 +24,7 @@ let main = blessed.list({
   },
   style: {
     fg: 'white',
+	scrollbar: true,
     border: {
       fg: '#f0f0f0'
     }
@@ -34,13 +35,14 @@ let userlist = blessed.list({
   top: 'center',
   right: '0',
   content: 'loading',
-  width: '40%',
+  width: '30%',
   height: '100%',
   tags: true,
   border: {
     type: 'line'
   },
   style: {
+	scrollbar: true,
     fg: 'white',
     border: {
       fg: '#f0f0f0'
@@ -73,7 +75,7 @@ let flag
 
 let room = process.argv[2] || "test"
 
-const ws = new WebSocket(`wss://euphoria.io/room/${room}/ws?h=0`, {
+const ws = new WebSocket(`wss://euphoria.io/room/${room}/ws?h=1`, {
 	origin: 'https://euphoria.io'
 })
 
@@ -88,22 +90,22 @@ function send (type, data) {
 		}`)
 }
 
-function download (before) {
+function download(before) {
 	if (before)
-	// return send("log",{n:1000,"before": before})
-	send("log",{n:1000})
+		// return send("log",{n:1000,"before": before})
+		send("log", { n: 1000 })
 }
 
-function nick (nick){
+function nick(nick) {
 	nick = nick || "K"
-	send('nick', {"name": nick})
+	send('nick', { "name": nick })
 
 }
 ws.on('open', function open() {
-	main.content ='connected'
+	main.content = 'connected'
 	screen.render()
-	nick()
-	send('who')
+	// nick()
+	// send('who')
 	// let pew = setTimeout(download, 1000)
 })
 
@@ -114,37 +116,39 @@ ws.on('close', function close() {
 ws.on('message', function incoming(data) {
 	// log(data)
 	let dt = JSON.parse(data)
-	if (dt.type === "ping-event"){
-		send("ping-reply",{"time": dt.data.time})
+	if (dt.type === "ping-event") {
+		send("ping-reply", { "time": dt.data.time })
 		// log('ping replied')
 	}
-	if (dt.type === "log-reply"){
-		log(JSON.stringify(dt.data.log))
+	if (dt.type === "log-reply") {
+		// log(JSON.stringify(dt.data.log))
 		// dt.data.log.forEach(item => log(JSON.stringify(item.content)+'\n',true))
-		let pew = setTimeout(_=>download(dt.data.log[0].id), 200)
+		let pew = setTimeout(_ => download(dt.data.log[0].id), 200)
 	}
-	if (dt.type === "send-event"){
-		repliables[reply] = dt.data.id
-		log(reply++ + dt.data.content)
-		if(dt.data.content.match('!help @K')){
-			send('send', {"content": "This is the real @K, a real person.", "parent": dt.data.id}
-			)}
-		if(dt.data.content.match('!kill @K')){
-			send('send', {"content": "kthxbye", "parent": dt.data.id})
+	if (dt.type === "send-event") {
+		repliables[reply++] = dt.data.id
+		// log(reply++ + dt.data.content)
+		if (dt.data.content.match('!help @K')) {
+			send('send', { "content": "This is the real @K, a real person.", "parent": dt.data.id }
+			)
+		}
+		if (dt.data.content.match('!kill @K')) {
+			send('send', { "content": "kthxbye", "parent": dt.data.id })
 			process.exit()
 		}
-		if(dt.data.content.match('@K')){
+		if (dt.data.content.match('@K')) {
 			// notify?
 		}
-		clearTimeout(pew)
+		// clearTimeout(pew)
+		main.add(`{#${color(dt.sender.name)}bg}${dt.sender.name}{/} {left}${dt.content}{left}\n`)
 		// let pew = setTimeout(_=>send('send',{"content":"pewpewpew"}),590000)
 	}
-	if (dt.type === "who-reply"){
+	if (dt.type === "who-reply") {
 		dt.data.listing.forEach(e => e = (`{#${color(e.name)}bg}${e.name}{/} {left}${e.id}{left}\n`))
 	}
-	if (dt.type === "snapshot-event"){
+	if (dt.type === "snapshot-event") {
 		userlist.clearItems()
-		dt.data.listing.forEach(e => userlist.add(`${e.name} ${e.id}\n`))
+		dt.data.listing.forEach(e => userlist.add(`{${color(e.name)}-fg}${e.name}{/} ${e.id}\n`))
 		main.clearItems()
 		dt.data.log.forEach(e => main.add(`{${color(e.sender.name)}-fg}${e.sender.name}{/}:	${e.content}\n`))
 	}
@@ -152,14 +156,14 @@ ws.on('message', function incoming(data) {
 
 })
 
-function handleStdin(data){
-	if(data.match("!reply")){
+function handleStdin(data) {
+	if (data.match("!reply")) {
 		let match = data.match(/\d+/)
-		return send('send',{"content": data.substring(9), "parent": repliables[data.match(/\d+/)[0]]})
+		return send('send', { "content": data.substring(9), "parent": repliables[data.match(/\d+/)[0]] })
 	}
-	if(data.match("!who"))
-	return send('who')
+	if (data.match("!who"))
+		return send('who')
 	// send('send',{"content": data})
 }
 
-process.stdin.on('data', data => handleStdin(data.toString()))
+// process.stdin.on('data', data => handleStdin(data.toString()))
