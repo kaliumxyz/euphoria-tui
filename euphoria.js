@@ -2,12 +2,15 @@
 const log = e => require('k-log')(e + "\n", "euphoria-cli.log",true)
 const blessed = require('blessed')
 const WebSocket = require('ws')
+const color = require("./lib/color")
 
 const screen = blessed.screen({
   smartCSR: true
 })
 
 screen.title = 'euphoria - cli'
+
+
 
 let main = blessed.list({
   top: 'center',
@@ -21,7 +24,6 @@ let main = blessed.list({
   },
   style: {
     fg: 'white',
-    bg: 'magenta',
     border: {
       fg: '#f0f0f0'
     }
@@ -51,7 +53,7 @@ screen.append(main)
 screen.append(userlist)
 
 // Quit on Escape, q, or Control-C.
-screen.key(['escape', 'q', 'C-c'], function(ch, key) {
+screen.key(['escape', 'q', 'C-c' ], function(ch, key) {
   return process.exit(0);
 })
 
@@ -69,7 +71,7 @@ let nicklist
 
 let flag
 
-let room = process.argv[2]
+let room = process.argv[2] || "test"
 
 const ws = new WebSocket(`wss://euphoria.io/room/${room}/ws?h=0`, {
 	origin: 'https://euphoria.io'
@@ -138,13 +140,13 @@ ws.on('message', function incoming(data) {
 		// let pew = setTimeout(_=>send('send',{"content":"pewpewpew"}),590000)
 	}
 	if (dt.type === "who-reply"){
-		dt.data.listing.forEach(e => e = (`${e.name} ${e.id}\n`))
+		dt.data.listing.forEach(e => e = (`{#${color(e.name)}bg}${e.name}{/} {left}${e.id}{left}\n`))
 	}
 	if (dt.type === "snapshot-event"){
 		userlist.clearItems()
 		dt.data.listing.forEach(e => userlist.add(`${e.name} ${e.id}\n`))
 		main.clearItems()
-		dt.data.log.forEach(e => main.add(`${e.sender.name} ${e.content}\n`))
+		dt.data.log.forEach(e => main.add(`{${color(e.sender.name)}-fg}${e.sender.name}{/}:	${e.content}\n`))
 	}
 	screen.render()
 
