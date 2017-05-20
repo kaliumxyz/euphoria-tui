@@ -1,11 +1,12 @@
 'use strict'
-const log = e => require('k-log')(e + "\n", "euphoria-cli.log",true)
+// const log = e => require('k-log')(e + "\n", "euphoria-cli.log",true)
 const blessed = require('blessed')
 const WebSocket = require('ws')
 const color = require("./lib/color")
 
 const screen = blessed.screen({
   smartCSR: true
+//   log: true
 })
 
 screen.title = 'hydra - euphoria'
@@ -78,8 +79,8 @@ let userlist = blessed.list({
 let text = blessed.textarea({
 	bottom: 0,
 	left: 0,
-	keys: 'vi',
-	vi: true,
+	// keys: 'vi',
+	// vi: true,
 	color: 'white',
 	width: '70%',
 	height: '8%',
@@ -106,17 +107,20 @@ screen.append(button)
 button.addListener('click',_=>send('send',text.getValue()))
 
 // Quit on Escape, q, or Control-C.
-screen.key(['escape', 'q', 'C-c','C-z' ], function(ch, key) {
-	if(key.match('z'))
-	return send('send',"test")
-	return process.exit(0);
+screen.key(['escape', 'q', 'C-c'], function(ch, key) {
+	return process.exit(0)
 })
 
+// screen.key('C-z', function(ch, key) {
+// 	return send('send',{"content":  `${text.getValue()}`})
+// })
 // Focus our element.
 text.focus()
 
 text.addListener('submit',_=>send('send',this.getValue()))
-text.key('z', _=>send('send',text.getValue()))
+text.key('C-z', _=>{
+	return send('send',{"content":  `${text.getValue()}`})
+})
 // Render the screen.
 screen.render()
 
@@ -160,12 +164,13 @@ ws.on('open', function open() {
 	main.content = 'connected'
 	screen.render()
 	nick()
+	// let pew = setTimeout(_=>send('send',{"content":"test"}),1900)
 	// send('who')
 	// let pew = setTimeout(download, 1000)
 })
 
 ws.on('close', function close() {
-	log('disconnected')
+	main.content = 'disconnected'
 })
 
 ws.on('message', function incoming(data) {
