@@ -8,9 +8,7 @@ const screen = blessed.screen({
   smartCSR: true
 })
 
-screen.title = 'euphoria - cli'
-
-
+screen.title = 'hydra - euphoria'
 
 let main = blessed.list({
   top: '0',
@@ -41,12 +39,29 @@ let bar = blessed.listbar({
 	}
 })
 
+let button = blessed.listbar({
+	bottom: 0,
+	right: 0,
+	width: '30%',
+	height: '8%',
+	border: {
+		type: 'line'
+	},
+	style: {
+		scrollbar: true,
+		fg: 'white',
+		border: {
+			fg: '#f0f0f0'
+		}
+	}
+})
+
 let userlist = blessed.list({
-  top: 'center',
+  top: '0',
   right: '0',
   content: 'loading',
   width: '30%',
-  height: '100%',
+  height: '94%',
   tags: true,
   border: {
     type: 'line'
@@ -85,16 +100,23 @@ let text = blessed.textarea({
 screen.append(main)
 screen.append(userlist)
 screen.append(text)
+// screen.append(bar)
+screen.append(button)
+
+button.addListener('click',_=>send('send',text.getValue()))
 
 // Quit on Escape, q, or Control-C.
-screen.key(['escape', 'q', 'C-c' ], function(ch, key) {
-  return process.exit(0);
+screen.key(['escape', 'q', 'C-c','C-z' ], function(ch, key) {
+	if(key.match('z'))
+	return send('send',"test")
+	return process.exit(0);
 })
 
 // Focus our element.
 text.focus()
 
-
+text.addListener('submit',_=>send('send',this.getValue()))
+text.key('z', _=>send('send',text.getValue()))
 // Render the screen.
 screen.render()
 
@@ -137,7 +159,7 @@ function nick(nick) {
 ws.on('open', function open() {
 	main.content = 'connected'
 	screen.render()
-	// nick()
+	nick()
 	// send('who')
 	// let pew = setTimeout(download, 1000)
 })
