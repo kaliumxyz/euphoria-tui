@@ -13,11 +13,12 @@ screen.title = 'euphoria - cli'
 
 
 let main = blessed.list({
-  top: 'center',
+  top: '0',
   left: '0',
   content: 'loading',
   width: '70%',
-  height: '100%',
+  scrollable: true,
+  height: '94%',
   tags: true,
   border: {
     type: 'line'
@@ -29,6 +30,15 @@ let main = blessed.list({
       fg: '#f0f0f0'
     }
   }
+})
+
+let bar = blessed.listbar({
+	top: '0',
+	width: '100%',
+	height: '4%',
+	style: {
+		bg: 'white'
+	}
 })
 
 let userlist = blessed.list({
@@ -50,9 +60,31 @@ let userlist = blessed.list({
   }
 })
 
+let text = blessed.textarea({
+	bottom: 0,
+	left: 0,
+	keys: 'vi',
+	vi: true,
+	color: 'white',
+	width: '70%',
+	height: '8%',
+	border: {
+		type: 'line'
+	},
+	style: {
+		scrollbar: true,
+		fg: 'white',
+		border: {
+			fg: '#f0f0f0'
+		}
+	}
+
+})
+
 // Append our box to the screen.
 screen.append(main)
 screen.append(userlist)
+screen.append(text)
 
 // Quit on Escape, q, or Control-C.
 screen.key(['escape', 'q', 'C-c' ], function(ch, key) {
@@ -60,7 +92,8 @@ screen.key(['escape', 'q', 'C-c' ], function(ch, key) {
 })
 
 // Focus our element.
-main.focus()
+text.focus()
+
 
 // Render the screen.
 screen.render()
@@ -140,6 +173,7 @@ ws.on('message', function incoming(data) {
 			// notify?
 		}
 		// clearTimeout(pew)
+		if(dt.sender)
 		main.add(`{#${color(dt.sender.name)}bg}${dt.sender.name}{/} {left}${dt.content}{left}\n`)
 		// let pew = setTimeout(_=>send('send',{"content":"pewpewpew"}),590000)
 	}
