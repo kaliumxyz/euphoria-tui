@@ -2,8 +2,10 @@
 // const log = e => require('k-log')(e + "\n", "euphoria-cli.log",true)
 const WebSocket = require('ws')
 const color = require("./lib/color")
-const screen = require('./lib/gui')
-
+const gui = require('./lib/gui')
+const screen = new gui
+const euphoriaConnection = require('euphoria-connection')
+const conn = new euphoriaConnection('test', 1, false)
 
 
 let reply = 0
@@ -43,7 +45,7 @@ function nick(nick) {
 
 }
 ws.on('open', function open() {
-	main.content = 'connected'
+	screen.main.content = 'connected'
 	screen.render()
 	nick()
 	// let pew = setTimeout(_=>send('send',{"content":"test"}),1900)
@@ -52,7 +54,7 @@ ws.on('open', function open() {
 })
 
 ws.on('close', function close() {
-	main.content = 'disconnected'
+	screen.main.content = 'disconnected'
 })
 
 ws.on('message', function incoming(data) {
@@ -83,17 +85,17 @@ ws.on('message', function incoming(data) {
 		}
 		// clearTimeout(pew)
 		if(dt.sender)
-		main.add(`{#${color(dt.sender.name)}bg}${dt.sender.name}{/} {left}${dt.content}{left}\n`)
+		screen.main.add(`{#${color(dt.sender.name)}bg}${dt.sender.name}{/} {left}${dt.content}{left}\n`)
 		// let pew = setTimeout(_=>send('send',{"content":"pewpewpew"}),590000)
 	}
 	if (dt.type === "who-reply") {
 		dt.data.listing.forEach(e => e = (`{#${color(e.name)}bg}${e.name}{/} {left}${e.id}{left}\n`))
 	}
 	if (dt.type === "snapshot-event") {
-		userlist.clearItems()
-		dt.data.listing.forEach(e => userlist.add(`{${color(e.name)}-fg}${e.name}{/} ${e.id}\n`))
-		main.clearItems()
-		dt.data.log.forEach(e => main.add(`{${color(e.sender.name)}-fg}${e.sender.name}{/}:	${e.content}\n`))
+		screen.userlist.clearItems()
+		dt.data.listing.forEach(e => screen.userlist.add(`{${color(e.name)}-fg}${e.name}{/} ${e.id}\n`))
+		screen.main.clearItems()
+		dt.data.log.forEach(e => screen.main.add(`{${color(e.sender.name)}-fg}${e.sender.name}{/}:	${e.content}\n`))
 	}
 	screen.render()
 
