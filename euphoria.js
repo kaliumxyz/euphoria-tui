@@ -112,3 +112,5 @@ function handleStdin(data) {
 }
 
 // process.stdin.on('data', data => handleStdin(data.toString()))
+
+module.exports = eidolon
