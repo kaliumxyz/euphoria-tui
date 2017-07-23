@@ -3,7 +3,30 @@
     "ava": "^0.19.1",
     "blessed": "^0.1.81",
     "euphoria-connection": "^0.1.2",
+    "instant-connection": "^0.3.2",
     "k-log": "^0.5.0",
     "ws": "^3.0.0"
-  }
+  },
+  "name": "eidola",
+  "description": "Hail Hydra",
+  "version": "0.4.0",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "ava"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kaliumxyz/eidola.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kaliumxyz/eidola/issues"
+  },
+  "homepage": "https://github.com/kaliumxyz/eidola#readme"
 }
