@@ -22,5 +22,13 @@ let test1 = new tab("euphoria", new euphoriaConnection())
 
 main.append(test1)
 
+
+// Quit on Escape or Control-C.
+main.key(['escape', 'C-c'], function (ch, key) {
+	return process.exit(0)
+})
+
 main.render()
+
+setInterval( _ => {main.render()}, 100)
 
