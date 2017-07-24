@@ -17,14 +17,12 @@ const instantConnection = require('instant-connection')
 
 // on ctrl + i, create an instant tab.
 main.key(['C-i'], function (ch, key) {
-	main.prepend(new tab("instant", new instantConnection()))
-	main.children[0].focus()
+	main.append(new tab("instant", new instantConnection()))
 })
 
 // on ctrl + e, create an instant tab.
 main.key(['C-e'], function (ch, key) {
-	main.prepend(new tab("euphoria", new euphoriaConnection()))
-	main.children[0].focus()
+	main.append(new tab("euphoria", new euphoriaConnection()))
 })
 
 
@@ -38,32 +36,33 @@ main.append(
 	blessed.box({
 		top: '0',
 		left: '0',
-		color: 'blue',
-		valign: 'middle',	
-		align: 'center',
-		width: '100%',
-		height: '100%',
 		content: 
 `
-00000000000000000
-000000000000000000000
-00000000000000000000000
-00000000000000000000000
-00000000000000000000000
-00000000000000000000000
-00                   00
-000                 000
-0000               0000
-0000           0000
-000000000000000 
+    00000000000000000               
+  000000000000000000000
+ 00000000000000000000000
+ 00000000000000000000000
+ 00000000000000000000000
+ 00000000000000000000000
+ 00                   00
+ 000                 000
+ 0000               0000             
+   0000           0000
+     000000000000000 
 		`,
 		style: {
-			fg: 'blue'}
+			allgn: 'center',
+			valign: 'middle',	
+			width: '100%',
+			height: '100%',
+			fg: 'white',
+			color: 'white',
+		}
 	}))
 
 // Render the main screen.
 main.render()
 
 // Render it again every 33ms, so that we can see changes.
-setInterval( _ => main.render(), 33)
+setInterval( _ => {main.render()}, 33)
 
