@@ -1,11 +1,9 @@
 {
   "dependencies": {
-    "ava": "^0.19.1",
     "blessed": "^0.1.81",
     "euphoria-connection": "^0.4.0",
     "gitlike-cli": "^0.1.0",
     "instant-connection": "^0.3.2",
-    "k-log": "^0.5.0",
     "ws": "^3.0.0"
   },
   "name": "eidola",
@@ -16,7 +14,9 @@
     "lib": "lib",
     "test": "test"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "ava": "^0.19.1"
+  },
   "scripts": {
     "test": "ava"
   },

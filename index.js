@@ -7,7 +7,7 @@ const tab = require('./lib/tab')
 const blessed = require('blessed')
 
 const program = require('gitlike-cli')
-program.process(process.argv)
+program.parse(process.argv)
 
 // Adding the main screen, we will append the tabs to it.
 
@@ -43,6 +43,7 @@ for(let i = 0; i<10; i++) {
 		if(tabs[i]) {
 			main.remove(main.children[0])
 			main.append(tabs[i])
+			tabs[i].children[0].focus()
 		}
 
 	})
@@ -75,8 +76,8 @@ main.append(
 000                 000
 0000               0000
 0000           0000
-000000000000000 
-		`,
+000000000000000
+`,
 		style: {
 			fg: 'blue'}
 	}))
