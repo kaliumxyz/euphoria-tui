@@ -1,25 +1,30 @@
-'use strict'
-// fix the default logging pluging, thx.
-// const log = e => require('k-log')(e + "\n", "euphoria-cli.log",true)
-const WebSocket = require('ws')
-const color = require('./lib/color')
-const tab = require('./lib/tab')
-const blessed = require('blessed')
+'use strict';
+const WebSocket = require('ws');
+const color = require('euphoria-color');
+const tab = require('./lib/tab');
+const blessed = require('blessed');
 
-const program = require('gitlike-cli')
-program.parse(process.argv)
+// Adding the main screen, we will append the tabs to it
 
-// Adding the main screen, we will append the tabs to it.
+let main = blessed.screen({smartCSR: true});
 
-let main = blessed.screen({smartCSR: true})
+/* connections */
+const euphoriaConnection = require('euphoria-connection');
+const instantConnection = require('instant-connection');
 
-/* Connection types below */
-const euphoriaConnection = require('euphoria-connection')
-const instantConnection = require('instant-connection')
-// I would like to add discord and IRC.
+// Array to prevent the tabs from being garbage collected when they are not active
+const tabs = [];
 
-// an Array to prevent the tabs from being garbage collected when they are not active.
-const tabs = []
+// allows the user to override any setting in the config file by affixing --{setting} {option} when calling the script 
+const args = process.argv
+		.join()
+		.match(/-\w+,\w+/g) || [];
+args.forEach( arg => {
+		let key = arg
+			.split(',')[0]
+			.replace('-','');
+		config[key] = arg.split(',')[1];
+	})
 
 // on ctrl + r, create an instant tab.
 main.key(['C-r'], function (ch, key) {

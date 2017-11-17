@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "blessed": "^0.1.81",
+    "euphoria-color": "^1.0.0",
     "euphoria-connection": "^0.4.1",
     "gitlike-cli": "^0.1.0",
     "instant-connection": "^0.3.2",
