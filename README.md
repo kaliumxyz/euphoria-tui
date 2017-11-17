@@ -1,4 +1,4 @@
-# euphoria-cli
+# euphoria-tui
 > one euphoria served hot in your terminal
 
-CLI utility for chatting on euphoria.io
+TUI utility for chatting on euphoria.io
