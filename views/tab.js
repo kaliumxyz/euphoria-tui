@@ -1,24 +1,34 @@
 const blessed = require('blessed')
 
-// We extend the screen and make our own "tab" as to allow us to not have to think about GUI at all.
-class tab extends blessed.box {
-	constructor(type, connection, parent) {
-		super()
+class tab extends blessed.Box {
+	constructor(room, connection, parent) {
+		super({
+			keys: true,
+			vi: true,
+			mouse: true,
+		});
 
-		this.title = `eidolon $(type)`
+		this.title = `euphoria-TUI`;
 
-		let main = blessed.list({
+		let main = blessed.List({
+			parent: this,
 			top: 0,
 			left: 0,
-			content: 'loading...',
-			width: '70%',
+			width: '100%',
+			keys: true,
+			vi: true,
+			mouse: true,
 			scrollable: true,
 			height: '94%',
 			tags: true,
+			label: `{bold}{blue-bg}&${room}{/blue-bg}{/bold}`,
 			border: {
 				type: 'line'
 			},
 			style: {
+				focus: {
+					bg: 'blue'
+				},
 				fg: 'white',
 				scrollbar: true,
 				border: {
@@ -27,7 +37,8 @@ class tab extends blessed.box {
 			}
 		})
 
-		let button = blessed.listbar({
+		let button = blessed.ListBar({
+			parent: this,
 			bottom: 0,
 			right: 0,
 			width: '30%',
@@ -44,13 +55,18 @@ class tab extends blessed.box {
 			}
 		})
 
-		let userlist = blessed.list({
+		let userlist = blessed.List({
+			parent: this,
 			top: '0',
 			right: '0',
-			content: 'loading...',
 			width: '30%',
 			height: '94%',
 			tags: true,
+			label: `{bold}users{/bold}`,
+			vi: true,
+			mouse: true,
+			keys: true,
+			scrollable: true,
 			border: {
 				type: 'line'
 			},
@@ -63,7 +79,8 @@ class tab extends blessed.box {
 			}
 		})
 
-		let text = blessed.textarea({
+		let text = blessed.Textarea({
+			parent: this,
 			bottom: 0,
 			left: 0,
 			keys: 'vi',
@@ -91,10 +108,6 @@ class tab extends blessed.box {
 		this.userlist = userlist
 		this.text = text
 		button.addListener('click', _ => send('send', text.getValue()))
-		this.append(main)
-		this.append(userlist)
-		this.append(button)
-		this.append(text)
 		this.connection = connection
 
 
@@ -105,22 +118,26 @@ class tab extends blessed.box {
 		text.key('C-z', _ => {
 			this.handleIn(text.getValue())
 		})
-		//this.main.content = 'test'
-		connection.on("ready", data => {
+
+		connection.on('ready', json => {
 			connection.nick()
 			connection.download(20)
 			connection.who()
 		})
-		connection.on("send-event", data => {
-			this.main.content += data
+		connection.on('send-event', json => {
+			// this.main.content += json.data
+			// this.main.render()
 		})
-		connection.on('log-reply', data => {
-			data.log.forEach( post => {
-				this.main.content += post.content
-			})
+		connection.on('log-reply', json => {
+			const data = json.data;
+			this.main.setItems(data.log.map(post => post.content));
+			this.render();
 		})
-		connection.on("who-reply", data => {
-			this.userlist.content += data
+		connection.on('who-reply', json => {
+			const data = json.data;
+			this.userlist.setItems(data.listing.map(user => user.name));
+			this.userlist.move(1);
+			this.render();
 		})
 		
 }

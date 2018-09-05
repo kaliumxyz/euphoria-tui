@@ -1,10 +1,10 @@
 {
   "dependencies": {
     "blessed": "^0.1.81",
-    "euphoria-color": "^1.0.0",
-    "euphoria-connection": "^0.4.1",
+    "euphoria-color": "^1.0.2",
+    "euphoria-connection": "^0.6.0",
     "gitlike-cli": "^0.1.0",
-    "instant-connection": "^0.3.2",
+    "instant-connection": "^0.3.4",
     "ws": "^3.0.0"
   },
   "name": "eidola",

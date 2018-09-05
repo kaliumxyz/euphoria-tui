@@ -1,19 +1,15 @@
 'use strict';
 const WebSocket = require('ws');
 const color = require('euphoria-color');
-const tab = require('./lib/tab');
+const tab = require('./views/tab');
 const blessed = require('blessed');
 
-// Adding the main screen, we will append the tabs to it
-
-let main = blessed.screen({smartCSR: true});
+// Adding the screen, we will append the tabs to it
+let screen = blessed.screen();
 
 /* connections */
-const euphoriaConnection = require('euphoria-connection');
-const instantConnection = require('instant-connection');
-
-// Array to prevent the tabs from being garbage collected when they are not active
-const tabs = [];
+const EuphoriaConnection = require('euphoria-connection');
+// const InstantConnection = require('instant-connection');
 
 // allows the user to override any setting in the config file by affixing --{setting} {option} when calling the script 
 const args = process.argv
@@ -21,46 +17,43 @@ const args = process.argv
 		.match(/-\w+,\w+/g) || [];
 args.forEach( arg => {
 		let key = arg
-			.split(',')[0]
+		.split(',')[0]
 			.replace('-','');
 		config[key] = arg.split(',')[1];
 	})
 
 // on ctrl + r, create an instant tab.
-main.key(['C-r'], function (ch, key) {
-	if(tabs[0])
-		main.remove(tabs[tabs.length-1])
-	tabs.push(new tab("instant", new instantConnection()))
-	main.append(tabs[tabs.length-1])
-})
+// screen.key(['C-r'], function () {
+// 	screen.append(new tab("instant", new InstantConnection()))
+// })
 
 // on ctrl + e, create an instant tab.
-main.key(['C-e'], function (ch, key) {
-	if(tabs[0])
-		main.remove(tabs[tabs.length-1])
-	tabs.push(new tab("euphoria", new euphoriaConnection()))
-	main.append(tabs[tabs.length-1])
+screen.key(['C-e'], function () {
+	screen.append(new tab('test', new EuphoriaConnection()))
+	screen.render();
 })
 
 // Allow switching windows with 0 to 9
 for(let i = 0; i<10; i++) {
-	main.key(['' + i], _ => {
+	screen.key(['' + i], _ => {
 		if(tabs[i]) {
-			main.remove(main.children[0])
-			main.append(tabs[i])
-			tabs[i].children[0].focus()
+			screen.children.forEach(
+				child => x.hide()
+			);
+			screen.children[i].show();
+			screen.children[i].focus();
 		}
 
 	})
 }
 
-// Quit on Escape or Control-C.
-main.key(['escape', 'C-c'], function (ch, key) {
+// Quit on Control-C.
+screen.key(['C-c'], function (ch, key) {
 	return process.exit(0)
 })
 
 // Add a nice placeholder screen.
-main.append(
+screen.append(
 	blessed.box({
 		top: '0',
 		left: '0',
@@ -87,9 +80,5 @@ main.append(
 			fg: 'blue'}
 	}))
 
-// Render the main screen.
-main.render()
-
-// Render it again every 33ms, so that we can see changes.
-setInterval( _ => main.render(), 33)
-
+// Render the screen screen.
+screen.render()
