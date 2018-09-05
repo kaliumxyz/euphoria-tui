@@ -4,27 +4,23 @@ class tab extends blessed.Box {
 	constructor(room, connection, parent) {
 		super({
 			keys: true,
-			vi: true,
 			mouse: true,
 		});
 
 		this.title = `euphoria-TUI`;
 
-		let main = blessed.List({
+		const main = blessed.List({
 			parent: this,
 			top: 0,
 			left: 0,
 			width: '100%',
 			keys: true,
-			vi: true,
 			mouse: true,
 			scrollable: true,
 			height: '94%',
 			tags: true,
 			label: `{bold}{blue-bg}&${room}{/blue-bg}{/bold}`,
-			border: {
-				type: 'line'
-			},
+			border: 'line',
 			style: {
 				focus: {
 					bg: 'blue'
@@ -37,25 +33,7 @@ class tab extends blessed.Box {
 			}
 		})
 
-		let button = blessed.ListBar({
-			parent: this,
-			bottom: 0,
-			right: 0,
-			width: '30%',
-			height: '8%',
-			border: {
-				type: 'line'
-			},
-			style: {
-				scrollbar: true,
-				fg: 'white',
-				border: {
-					fg: '#f0f0f0'
-				}
-			}
-		})
-
-		let userlist = blessed.List({
+		const userlist = blessed.List({
 			parent: this,
 			top: '0',
 			right: '0',
@@ -63,13 +41,10 @@ class tab extends blessed.Box {
 			height: '94%',
 			tags: true,
 			label: `{bold}users{/bold}`,
-			vi: true,
 			mouse: true,
 			keys: true,
 			scrollable: true,
-			border: {
-				type: 'line'
-			},
+			border: 'line',
 			style: {
 				scrollbar: true,
 				fg: 'white',
@@ -79,19 +54,50 @@ class tab extends blessed.Box {
 			}
 		})
 
-		let text = blessed.Textarea({
+		const form =  blessed.Form({
 			parent: this,
 			bottom: 0,
-			left: 0,
-			keys: 'vi',
-			color: 'white',
-			width: '70%',
+			right: 0,
+			width: '100%',
 			height: '8%',
-			border: {
-				type: 'line'
-			},
+		})
+
+		form.on('submit', content => {
+			this.connection.post(content.post);
+		})
+
+
+		const button = blessed.Button({
+			parent: form,
+			bottom: 0,
+			right: 0,
+			width: '30%',
+			height: '100%',
+			border: 'line',
 			style: {
 				scrollbar: true,
+				fg: 'white',
+				border: {
+					fg: '#f0f0f0'
+				}
+			}
+		})
+
+		button.on('press', function() {form.submit()})
+
+		const text = blessed.Textbox({
+			parent: form,
+			bottom: 0,
+			left: 0,
+			keys: true,
+			vi: false,
+			mouse: true,
+			color: 'white',
+			width: '70%',
+			height: '100%',
+			border: 'line',
+			name: 'post',
+			style: {
 				fg: 'white',
 				focus: {
 					bg: 'blue'
@@ -107,16 +113,15 @@ class tab extends blessed.Box {
 		this.button = button
 		this.userlist = userlist
 		this.text = text
-		button.addListener('click', _ => send('send', text.getValue()))
+		text.focus();
+		button.addListener('click', () => {
+			form.submit();
+		})
 		this.connection = connection
 
 
-		text.addListener('submit', _ => {
-			this.handleIn(text.getValue())
-		})
-
-		text.key('C-z', _ => {
-			this.handleIn(text.getValue())
+		text.addListener('submit', () => {
+			form.submit();
 		})
 
 		connection.on('ready', json => {
@@ -125,8 +130,16 @@ class tab extends blessed.Box {
 			connection.who()
 		})
 		connection.on('send-event', json => {
-			// this.main.content += json.data
-			// this.main.render()
+			const data = json.data;
+			this.main.pushItem(data.content);
+			this.main.move(1);
+			this.main.render();
+		})
+		connection.on('send-reply', json => {
+			const data = json.data;
+			this.main.addItem(data.content);
+			this.main.move(1);
+			this.main.render();
 		})
 		connection.on('log-reply', json => {
 			const data = json.data;
@@ -139,25 +152,6 @@ class tab extends blessed.Box {
 			this.userlist.move(1);
 			this.render();
 		})
-		
-}
-
-	
-handleIn(data) {
-	if (data.match("!reply")) {
-		let match = data.match(/\d+/)
-		return send('send', {
-			"content": data.substring(9),
-			"parent": repliables[data.match(/\d+/)[0]]
-		})
 	}
-	if (data.match("!who"))
-		return connection.who()
-	this.connection.post(data)
-
-}
-
-
-
 }
 module.exports = tab
