@@ -109,10 +109,11 @@ class tab extends blessed.Box {
 
 		})
 
-		this.main = main
-		this.button = button
-		this.userlist = userlist
-		this.text = text
+		this.main = main;
+		this.button = button;
+		this.userlist = userlist;
+		this.text = text;
+		this.log = [];
 		text.focus();
 		button.addListener('click', () => {
 			form.submit();
@@ -131,19 +132,15 @@ class tab extends blessed.Box {
 		})
 		connection.on('send-event', json => {
 			const data = json.data;
-			this.main.pushItem(data.content);
+			this.log.push(data);
+			sort(this.log, this.main);
 			this.main.move(1);
 			this.main.render();
 		})
-		connection.on('send-reply', json => {
+		connection.once('log-reply', json => {
 			const data = json.data;
-			this.main.addItem(data.content);
-			this.main.move(1);
-			this.main.render();
-		})
-		connection.on('log-reply', json => {
-			const data = json.data;
-			this.main.setItems(data.log.map(post => post.content));
+			this.log = data.log;
+			sort(this.log, this.main);
 			this.render();
 		})
 		connection.on('who-reply', json => {
@@ -154,4 +151,49 @@ class tab extends blessed.Box {
 		})
 	}
 }
+
+function sort (posts, main) {
+	let result = [];
+	const root = [];
+
+	for (let i = 0; i < posts.length; i++) {
+    let post = posts[i];
+    let parent = post.parent;
+    console.log(parent);
+    if (parent) {
+      if (root[parent.id] !== void(0)) {
+        root[parent.id].children.push(post);
+      } else {
+        root[parent.id] = parent;
+        root[parent.id].children = [post];
+      }
+    } else { // post is root
+      if (root[post.id]) // ?????
+        process.exit();
+      root[post.id] = post;
+      root[post.id].children = [];
+    }
+  }
+
+  // Object.keys(root).forEach(function(key) {
+  //   result = result.concat(render_post(main, root[key]))
+  // })
+
+  // main.setItems(result);
+}
+
+function render_post(main, post, depth = 0, item = []) {
+  padding = '';
+  for (let i = 0; i < depth; i++) {
+    padding += ' ';
+  }
+  item.push(`${padding} ${post.sender.name} ${post.content} ${depth} `);
+	if(post.children) {
+	  post.children.forEach(child => {
+      item = item.concat(render_post(main, child, ++depth, item));
+    });
+	}
+  return item;
+}
+
 module.exports = tab

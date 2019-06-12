@@ -2,25 +2,17 @@
   "dependencies": {
     "blessed": "^0.1.81",
     "euphoria-color": "^1.0.2",
-    "euphoria-connection": "^0.6.0",
-    "gitlike-cli": "^0.1.0",
-    "instant-connection": "^0.3.4",
-    "ws": "^3.0.0"
+    "euphoria.js": "^1.1.1"
   },
   "name": "eidola",
   "description": "a TUI for euphoria and instant",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "main": "index.js",
   "directories": {
     "lib": "lib",
     "test": "test"
   },
-  "devDependencies": {
-    "ava": "^0.19.1"
-  },
-  "scripts": {
-    "test": "ava"
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kaliumxyz/eidola.git"
